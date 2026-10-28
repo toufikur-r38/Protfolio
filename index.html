@@ -87,18 +87,7 @@
       </section>
       <div class="exploring wrap">
         <p class="eyebrow">ON MY RADAR</p>
-        <div>
-          <span class="explore-icon">⌘</span>
-          <p>Problem solving<small>Finding the elegant solution.</small></p>
-        </div>
-        <div>
-          <span class="explore-icon">◎</span>
-          <p>Web development<small>Making ideas interactive.</small></p>
-        </div>
-        <div>
-          <span class="explore-icon">⑂</span>
-          <p>Open source<small>Learning in good company.</small></p>
-        </div>
+        <div class="radar-grid" id="radar-items"></div>
       </div>
       <section class="section wrap" id="journey">
         <div class="section-heading reveal">
@@ -108,40 +97,7 @@
           </div>
           <p>Every “I finally get it” starts with<br />a little “what if?”</p>
         </div>
-        <div class="timeline reveal">
-          <article>
-            <span class="timeline-number">01</span>
-            <p class="micro-label">THE FIRST SPARK</p>
-            <h3>Hello, world.</h3>
-            <p>
-              That first line of code. The feeling of making a computer do
-              something. The beginning of a much bigger curiosity.
-            </p>
-            <span class="journey-tag">Curiosity → code</span>
-          </article>
-          <article>
-            <span class="timeline-number">02</span>
-            <p class="micro-label">CONNECTING THE DOTS</p>
-            <h3>Beyond the syntax.</h3>
-            <p>
-              Exploring data structures, breaking down problems, and discovering
-              that understanding the “why” changes everything.
-            </p>
-            <span class="journey-tag">Think → solve → repeat</span>
-          </article>
-          <article>
-            <span class="timeline-number current">03</span>
-            <p class="micro-label">THE NEXT CHAPTER</p>
-            <h3>Building with purpose.</h3>
-            <p>
-              Turning lessons into small experiments and useful projects.
-              Learning by making, making mistakes, and trying again.
-            </p>
-            <span class="journey-tag mint"
-              >Always a work in progress <span>↗</span></span
-            >
-          </article>
-        </div>
+        <div class="timeline reveal" id="milestone-items"></div>
       </section>
       <section class="section wrap" id="projects">
         <div class="section-heading reveal">
@@ -150,91 +106,12 @@
             <h2>Less talk.<br /><span>More building.</span></h2>
           </div>
           <p>
-            A few ideas to make my own.<br /><span class="sample-note"
-              >Illustrative projects · replace with your work</span
+            Things I build, and ideas I explore.<br /><span class="sample-note"
+              >Projects and interactive experiments</span
             >
           </p>
         </div>
-        <div class="project-grid">
-          <button class="project-card reveal" data-project="study">
-            <div class="project-visual study-visual">
-              <div class="planner">
-                <aside>
-                  <b>◈ StudySpace</b
-                  ><span class="selected">▦ &nbsp; Overview</span
-                  ><span>✓ &nbsp; My tasks</span><span>▤ &nbsp; Notes</span
-                  ><span>◷ &nbsp; Focus</span
-                  ><span class="sidebar-bottom"
-                    >A little better, every day.</span
-                  >
-                </aside>
-                <div class="planner-main">
-                  <div class="planner-top">MY WORKSPACE <span>◉</span></div>
-                  <h4>A little progress,<br />every day <span>✳</span></h4>
-                  <p>Make room for what matters.</p>
-                  <div class="planner-widgets">
-                    <div>
-                      <small>THIS WEEK</small><b>Keep showing up.</b>
-                      <div class="bars">
-                        <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-                      </div>
-                    </div>
-                    <div class="focus-widget">
-                      <span>✺</span><small>Time to focus</small><b>25:00</b>
-                    </div>
-                  </div>
-                  <div class="task">
-                    <i>✓</i> Review graph algorithms <span>Today</span>
-                  </div>
-                  <div class="task">
-                    <i></i> Build something interesting <span>Next up</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="project-info">
-              <div class="project-title">
-                <h3>StudySpace</h3>
-                <span>↗</span>
-              </div>
-              <p>A calmer place to plan, focus, and make a little progress.</p>
-              <div class="tags">
-                <span>Web app concept</span><span>Productivity</span
-                ><span>UI design</span>
-              </div>
-            </div>
-          </button>
-          <button class="project-card reveal" data-project="path">
-            <div class="project-visual path-visual">
-              <div class="path-app">
-                <div class="path-header">
-                  <b><span>⌁</span> Pathfinder</b
-                  ><span>DIJKSTRA’S ALGORITHM</span>
-                </div>
-                <div
-                  class="path-grid"
-                  id="path-preview"
-                  aria-hidden="true"
-                ></div>
-                <div class="path-bottom">
-                  <span><i></i> Shortest path</span
-                  ><span class="mini-button">Visualize ↗</span>
-                </div>
-              </div>
-            </div>
-            <div class="project-info">
-              <div class="project-title">
-                <h3>Pathfinder</h3>
-                <span>↗</span>
-              </div>
-              <p>A visual way to explore how algorithms find their way.</p>
-              <div class="tags">
-                <span>Interactive demo</span><span>Algorithms</span
-                ><span>JavaScript</span>
-              </div>
-            </div>
-          </button>
-        </div>
+        <div class="project-grid" id="project-items"></div>
         <p class="project-hint">
           GOOD THINGS START WITH A SMALL EXPERIMENT.
           <span>Click a project to explore ↗</span>
@@ -297,6 +174,7 @@
             <p class="contact-placeholder">
               Replace with your email in profile.js
             </p>
+            <div class="contact-socials" aria-label="Social profiles"></div>
           </div>
         </div>
       </section>
@@ -329,6 +207,73 @@
         >View source ↗</a
       >
     </dialog>
+    <template data-project-visual="construct">
+            <div class="project-visual construct-visual">
+              <div class="construct-preview">
+                <p class="micro-label">CONSTRUCTION MANAGEMENT</p>
+                <h3>ConstructFlow<span>.</span></h3>
+                <p>Projects. Costs. Clearer decisions.</p>
+                <div class="construct-modules"><span>Projects</span><span>Costs</span><span>User roles</span><span>PDF / Excel reports</span></div>
+                <p class="construct-language">English + বাংলা</p>
+              </div>
+            </div>
+    </template>
+    <template data-project-visual="study">
+            <div class="project-visual study-visual">
+              <div class="planner">
+                <aside>
+                  <b>◈ StudySpace</b
+                  ><span class="selected">▦ &nbsp; Overview</span
+                  ><span>✓ &nbsp; My tasks</span><span>▤ &nbsp; Notes</span
+                  ><span>◷ &nbsp; Focus</span
+                  ><span class="sidebar-bottom"
+                    >A little better, every day.</span
+                  >
+                </aside>
+                <div class="planner-main">
+                  <div class="planner-top">MY WORKSPACE <span>◉</span></div>
+                  <h4>A little progress,<br />every day <span>✳</span></h4>
+                  <p>Make room for what matters.</p>
+                  <div class="planner-widgets">
+                    <div>
+                      <small>THIS WEEK</small><b>Keep showing up.</b>
+                      <div class="bars">
+                        <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                      </div>
+                    </div>
+                    <div class="focus-widget">
+                      <span>✺</span><small>Time to focus</small><b>25:00</b>
+                    </div>
+                  </div>
+                  <div class="task">
+                    <i>✓</i> Review graph algorithms <span>Today</span>
+                  </div>
+                  <div class="task">
+                    <i></i> Build something interesting <span>Next up</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+    </template>
+    <template data-project-visual="path">
+            <div class="project-visual path-visual">
+              <div class="path-app">
+                <div class="path-header">
+                  <b><span>⌁</span> Pathfinder</b
+                  ><span>DIJKSTRA’S ALGORITHM</span>
+                </div>
+                <div
+                  class="path-grid"
+                  id="path-preview"
+                  aria-hidden="true"
+                ></div>
+                <div class="path-bottom">
+                  <span><i></i> Shortest path</span
+                  ><span class="mini-button">Visualize ↗</span>
+                </div>
+              </div>
+            </div>
+    </template>
     <script src="profile.js"></script>
   </body>
 </html>

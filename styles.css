@@ -351,7 +351,7 @@ code q {
 .exploring {
   border-block: 1px solid var(--line);
   display: grid;
-  grid-template-columns: 0.8fr 1fr 1fr 1fr;
+  grid-template-columns: 0.8fr repeat(4, 1fr);
   gap: 20px;
   padding-block: 27px;
   align-items: center;
@@ -420,6 +420,24 @@ h2 > span {
   border-top: 1px solid #385060;
   padding-top: 35px;
 }
+.construct-visual {
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background: linear-gradient(135deg, #173342, #12212e);
+}
+.construct-preview {
+  width: 100%;
+  padding: 28px;
+  border: 1px solid #385060;
+  border-radius: 12px;
+  background: var(--bg);
+}
+.construct-preview h3 { font-size: clamp(24px, 3vw, 36px); }
+.construct-preview h3 span, .construct-language { color: var(--mint); }
+.construct-preview > p { font-size: 12px; }
+.construct-modules { display: flex; flex-wrap: wrap; gap: 10px; margin-block: 22px; }
+.construct-modules span { padding: 8px 12px; border: 1px solid #385060; border-radius: 6px; font-size: 11px; }
 .timeline-number {
   position: absolute;
   top: -14px;
@@ -881,6 +899,18 @@ h3 {
 .about-signoff span {
   float: right;
 }
+.contact-socials {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+  margin-top: 22px;
+  font-size: 12px;
+}
+.contact-socials a { color: var(--mint); }
+.contact-socials a:hover { text-decoration: underline; }
+.social-placeholder { color: var(--muted); }
+.social-placeholder small { margin-left: 6px; font-size: 10px; }
 .contact {
   padding-block: 82px;
   border-bottom: 1px solid var(--line);
@@ -1092,7 +1122,7 @@ dialog > p:not(.eyebrow) {
     min-height: 570px;
   }
   .exploring {
-    grid-template-columns: 0.65fr 1fr 1fr 1fr;
+    grid-template-columns: 0.65fr repeat(4, 1fr);
     gap: 10px;
   }
   .exploring > div {
@@ -1396,4 +1426,21 @@ dialog > p:not(.eyebrow) {
     opacity: 1;
     transform: none;
   }
+}
+
+/* Profile collections adapt to the available width and item count. */
+.exploring { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+.exploring > .radar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 22px; }
+.radar-item { display: flex; align-items: center; gap: 15px; min-width: 0; }
+.radar-item .explore-icon { flex: 0 0 30px; text-align: center; }
+.timeline { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); row-gap: 44px; }
+.project-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); align-items: stretch; }
+.project-card { display: flex; flex-direction: column; height: 100%; }
+.project-visual { width: 100%; flex-shrink: 0; }
+.project-info { width: 100%; flex: 1; }
+.tags { flex-wrap: wrap; }
+.radar-item p, .timeline article, .project-info, .contact-socials { min-width: 0; overflow-wrap: anywhere; }
+.contact-socials { gap: 16px 24px; }
+@media (max-width: 700px) {
+  .timeline { grid-template-columns: 1fr; row-gap: 0; }
 }

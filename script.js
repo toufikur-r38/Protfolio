@@ -1,5 +1,78 @@
 'use strict';
 const profile = window.PORTFOLIO;
+
+// Content is rendered before animations and project listeners are initialized.
+function element(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+(profile.radar || []).forEach((item) => {
+  const card = element('div', 'radar-item');
+  const icon = element('span', 'explore-icon', item.icon || '◇');
+  icon.setAttribute('aria-hidden', 'true');
+  const copy = element('p', '', item.title);
+  copy.append(element('small', '', item.description));
+  card.append(icon, copy);
+  document.querySelector('#radar-items').append(card);
+});
+(profile.milestones || []).forEach((item, index, items) => {
+  const card = element('article');
+  card.append(
+    element('span', 'timeline-number' + (index === items.length - 1 ? ' current' : ''), String(index + 1).padStart(2, '0')),
+    element('p', 'micro-label', item.label),
+    element('h3', '', item.title),
+    element('p', '', item.description),
+    element('span', 'journey-tag', item.tag),
+  );
+  document.querySelector('#milestone-items').append(card);
+});
+(profile.projects || []).forEach((project, index) => {
+  const card = element('button', 'project-card reveal');
+  card.type = 'button';
+  card.dataset.project = String(index);
+  const template = [...document.querySelectorAll('[data-project-visual]')]
+    .find((item) => item.dataset.projectVisual === project.visual);
+  if (template) card.append(template.content.cloneNode(true));
+  else {
+    const visual = element('div', 'project-visual construct-visual');
+    const preview = element('div', 'construct-preview');
+    preview.append(element('p', 'micro-label', project.concept ? 'PROJECT CONCEPT' : 'PERSONAL PROJECT'), element('h3', '', project.title));
+    visual.append(preview);
+    card.append(visual);
+  }
+  // The project title and details always come from profile.js.
+  const previewTitle = card.querySelector('.construct-preview h3');
+  if (previewTitle) previewTitle.textContent = project.title;
+  const info = element('div', 'project-info');
+  const title = element('div', 'project-title');
+  title.append(element('h3', '', project.title), element('span', '', '↗'));
+  const tags = element('div', 'tags');
+  (project.tags || []).forEach((tag) => tags.append(element('span', '', tag)));
+  info.append(title, element('p', '', project.summary || project.description), tags);
+  card.append(info);
+  document.querySelector('#project-items').append(card);
+});
+
+Object.entries(profile.socials || {}).forEach(([key, value]) => {
+  const label = { github: 'GitHub', linkedin: 'LinkedIn', twitter: 'Twitter' }[key] || key;
+  let url;
+  try { url = new URL(value); } catch { /* Empty URLs show a placeholder. */ }
+  const container = document.querySelector('.contact-socials');
+  if (url?.protocol === 'https:') {
+    const link = element('a', '', label + ' ↗');
+    link.href = url.href;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    container.append(link);
+  } else {
+    const placeholder = element('span', 'social-placeholder', label);
+    placeholder.append(element('small', '', 'Coming soon'));
+    container.append(placeholder);
+  }
+});
+
 document.querySelectorAll('[data-name]').forEach((el) => {
   el.textContent = profile.name;
 });
@@ -184,7 +257,7 @@ function makeGrid(el, preview = false) {
     el.append(cell);
   }
 }
-makeGrid(document.querySelector('#path-preview'), true);
+document.querySelectorAll('#project-items .path-grid').forEach((grid) => makeGrid(grid, true));
 const dialog = document.querySelector('#project-dialog');
 let runId = 0;
 document.querySelectorAll('[data-project]').forEach((button) =>
@@ -201,7 +274,7 @@ document.querySelectorAll('[data-project]').forEach((button) =>
     if (validRepo) repo.href = project.repository;
     const demo = document.querySelector('#dialog-demo');
     demo.replaceChildren();
-    if (key === 'study') {
+    if (project.demo === 'study') {
       const tasks = document.createElement('div');
       tasks.className = 'demo-tasks';
       [
@@ -216,7 +289,7 @@ document.querySelectorAll('[data-project]').forEach((button) =>
         tasks.append(label);
       });
       demo.append(tasks);
-    } else {
+    } else if (project.demo === 'path') {
       const grid = document.createElement('div');
       grid.className = 'demo-grid';
       grid.setAttribute('aria-hidden', 'true');
@@ -231,6 +304,9 @@ document.querySelectorAll('[data-project]').forEach((button) =>
       run.addEventListener('click', () => solve(grid, status, run));
       demo.append(grid, status, run);
     }
+    document.querySelector('#dialog-label').textContent =
+      project.concept ? 'PROJECT CONCEPT' : 'PERSONAL PROJECT';
+    document.querySelector('.dialog-note').hidden = !project.concept;
     dialog.showModal();
   }),
 );
