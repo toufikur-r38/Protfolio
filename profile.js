@@ -1,7 +1,7 @@
 // Edit these details and arrays to update the portfolio. Empty URLs show placeholders.
 window.PORTFOLIO = {
   // Add your image path here, for example: "images/profile.jpg".
-  "photo": "",
+  "photo": "images/profile.jpg",
   "name": "Toufikur Rahman",
   "email": "toufikur.private@gmail.com",
   "socials": {
@@ -14,6 +14,7 @@ window.PORTFOLIO = {
     {
       "id": "construct",
       "title": "ConstructFlow",
+      "image": "images/constructflow.png",
       "description": "A Flask app I built to manage construction projects, costs, and user roles, with PDF and Excel reports and support for English and Bangla.",
       "repository": "https://github.com/toufikur-r38/ConstructFlow",
       "summary": "A construction management app for projects, costs, user roles, and reports, with English and Bangla support.",

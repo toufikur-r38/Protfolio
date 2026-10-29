@@ -43,23 +43,31 @@ function element(tag, className, text) {
   );
   document.querySelector('#milestone-items').append(card);
 });
-(profile.projects || []).forEach((project, index) => {
+(profile.projects || []).forEach((project, index, projects) => {
   const card = element('button', 'project-card reveal');
   card.type = 'button';
   card.dataset.project = String(index);
-  const template = [...document.querySelectorAll('[data-project-visual]')]
-    .find((item) => item.dataset.projectVisual === project.visual);
-  if (template) card.append(template.content.cloneNode(true));
-  else {
-    const visual = element('div', 'project-visual construct-visual');
-    const preview = element('div', 'construct-preview');
-    preview.append(element('p', 'micro-label', project.concept ? 'PROJECT CONCEPT' : 'PERSONAL PROJECT'), element('h3', '', project.title));
-    visual.append(preview);
-    card.append(visual);
+  const counterWidth = Math.max(2, String(projects.length).length);
+  const currentNumber = String(index + 1).padStart(counterWidth, '0');
+  const totalNumber = String(projects.length).padStart(counterWidth, '0');
+  const counter = element('span', 'project-number', `${currentNumber}/${totalNumber}`);
+  counter.setAttribute('aria-label', `Project ${index + 1} of ${projects.length}`);
+  card.append(counter);
+  const visual = element('div', 'project-visual project-image-visual');
+  const placeholder = element('div', 'project-placeholder');
+  placeholder.append(element('span', 'micro-label', project.concept ? 'PROJECT CONCEPT' : 'PERSONAL PROJECT'), element('h3', '', project.title));
+  if (project.image) {
+    const image = element('img', 'project-image');
+    image.alt = project.imageAlt || `${project.title} screenshot`;
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    image.addEventListener('error', () => image.replaceWith(placeholder), { once: true });
+    image.src = project.image;
+    visual.append(image);
+  } else {
+    visual.append(placeholder);
   }
-  // The project title and details always come from profile.js.
-  const previewTitle = card.querySelector('.construct-preview h3');
-  if (previewTitle) previewTitle.textContent = project.title;
+  card.append(visual);
   const info = element('div', 'project-info');
   const title = element('div', 'project-title');
   title.append(element('h3', '', project.title), element('span', '', '↗'));
@@ -172,7 +180,7 @@ document.documentElement.addEventListener('pointerleave', hidePointerLight);
 window.addEventListener('blur', hidePointerLight);
 reduced.addEventListener('change', hidePointerLight);
 finePointer.addEventListener('change', hidePointerLight);
-document.querySelectorAll('.project-card, .radar-item, .profile-photo-frame, .code-card').forEach((card) => {
+document.querySelectorAll('.project-card, .radar-item, .code-card').forEach((card) => {
   card.classList.add('pointer-surface');
   let frame = 0;
   let x = 0;
@@ -241,6 +249,8 @@ document.querySelectorAll('.timeline article').forEach((card) => {
 document.querySelector('.timeline').classList.remove('reveal');
 document.querySelectorAll('.hero-copy > *, .hero-art, .exploring > .eyebrow, .radar-item, .timeline article, .about-copy > *, .project-hint, .contact > .eyebrow, .contact-row > h2, .contact-row > div > *, footer > *').forEach((el) => el.classList.add('reveal'));
 document.querySelector('.about-copy').classList.remove('reveal');
+// Keep the portrait fully visible, without replaying the section fade.
+document.querySelector('.about-art').classList.remove('reveal');
 document.querySelector('.contact').classList.remove('reveal');
 document.querySelectorAll('.hero-copy, .radar-grid, .timeline, .project-grid, .about-copy, .contact-row > div, footer').forEach((group) => {
   [...group.children].forEach((el, index) => {
