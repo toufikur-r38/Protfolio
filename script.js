@@ -1,6 +1,21 @@
 'use strict';
 const profile = window.PORTFOLIO;
 
+const profilePhoto = document.querySelector('#profile-photo');
+const photoPlaceholder = document.querySelector('.profile-photo-placeholder');
+if (profile.photo) {
+  profilePhoto.alt = `Portrait of ${profile.name}`;
+  profilePhoto.addEventListener('load', () => {
+    profilePhoto.hidden = false;
+    photoPlaceholder.hidden = true;
+  });
+  profilePhoto.addEventListener('error', () => {
+    profilePhoto.hidden = true;
+    photoPlaceholder.hidden = false;
+  });
+  profilePhoto.src = profile.photo;
+}
+
 // Content is rendered before animations and project listeners are initialized.
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -121,20 +136,159 @@ document.addEventListener('keydown', (e) => {
   }
 });
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-if ('IntersectionObserver' in window && !reduced.matches) {
-  document.body.classList.add('js-motion');
+const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
+// A minimal ring cursor follows the pointer across the entire page.
+const pointerLight = element('div', 'pointer-light');
+pointerLight.setAttribute('aria-hidden', 'true');
+document.body.append(pointerLight);
+const cursorDot = element('div', 'cursor-dot');
+cursorDot.setAttribute('aria-hidden', 'true');
+document.body.append(cursorDot);
+let lightFrame = 0;
+let lightX = 0;
+let lightY = 0;
+function hidePointerLight() {
+  cancelAnimationFrame(lightFrame);
+  lightFrame = 0;
+  pointerLight.classList.remove('active');
+  cursorDot.classList.remove('active');
+  document.documentElement.classList.remove('custom-cursor');
+}
+document.addEventListener('pointermove', (event) => {
+  if (reduced.matches || !finePointer.matches || event.pointerType === 'touch') return;
+  lightX = event.clientX;
+  lightY = event.clientY;
+  if (lightFrame) return;
+  lightFrame = requestAnimationFrame(() => {
+    lightFrame = 0;
+    pointerLight.style.transform = `translate3d(${lightX}px, ${lightY}px, 0)`;
+    cursorDot.style.transform = `translate3d(${lightX}px, ${lightY}px, 0)`;
+    pointerLight.classList.add('active');
+    cursorDot.classList.add('active');
+    document.documentElement.classList.add('custom-cursor');
+  });
+}, { passive: true });
+document.documentElement.addEventListener('pointerleave', hidePointerLight);
+window.addEventListener('blur', hidePointerLight);
+reduced.addEventListener('change', hidePointerLight);
+finePointer.addEventListener('change', hidePointerLight);
+document.querySelectorAll('.project-card, .radar-item, .profile-photo-frame, .code-card').forEach((card) => {
+  card.classList.add('pointer-surface');
+  let frame = 0;
+  let x = 0;
+  let y = 0;
+  const reset = () => {
+    cancelAnimationFrame(frame);
+    frame = 0;
+    card.classList.remove('pointer-active');
+    card.style.removeProperty('--pointer-lean');
+  };
+  card.addEventListener('pointermove', (event) => {
+    if (reduced.matches || !finePointer.matches || event.pointerType === 'touch') return;
+    x = event.clientX;
+    y = event.clientY;
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      const rect = card.getBoundingClientRect();
+      const px = Math.min(1, Math.max(0, (x - rect.left) / rect.width));
+      const py = Math.min(1, Math.max(0, (y - rect.top) / rect.height));
+      card.style.setProperty('--pointer-x', `${px * 100}%`);
+      card.style.setProperty('--pointer-y', `${py * 100}%`);
+      card.style.setProperty('--pointer-lean', `${(px - 0.5) * 1.5}deg`);
+      card.classList.add('pointer-active');
+    });
+  });
+  card.addEventListener('pointerleave', reset);
+  card.addEventListener('pointercancel', reset);
+  reduced.addEventListener('change', reset);
+  finePointer.addEventListener('change', reset);
+});
+document.querySelectorAll('.timeline article').forEach((card) => {
+  let pointerFrame = 0;
+  let pointerX = 0;
+  let pointerY = 0;
+  function resetPointer() {
+    cancelAnimationFrame(pointerFrame);
+    pointerFrame = 0;
+    card.classList.remove('pointer-active');
+    card.style.removeProperty('--tilt-x');
+    card.style.removeProperty('--tilt-y');
+  }
+  card.addEventListener('pointermove', (event) => {
+    if (reduced.matches || !finePointer.matches || event.pointerType === 'touch') return;
+    pointerX = event.clientX;
+    pointerY = event.clientY;
+    if (pointerFrame) return;
+    pointerFrame = requestAnimationFrame(() => {
+      pointerFrame = 0;
+      const bounds = card.getBoundingClientRect();
+      const x = Math.min(1, Math.max(0, (pointerX - bounds.left) / bounds.width));
+      const y = Math.min(1, Math.max(0, (pointerY - bounds.top) / bounds.height));
+      card.style.setProperty('--pointer-x', `${x * 100}%`);
+      card.style.setProperty('--pointer-y', `${y * 100}%`);
+      card.style.setProperty('--tilt-x', `${(0.5 - y) * 5}deg`);
+      card.style.setProperty('--tilt-y', `${(x - 0.5) * 5}deg`);
+      card.classList.add('pointer-active');
+    });
+  });
+  card.addEventListener('pointerleave', resetPointer);
+  card.addEventListener('pointercancel', resetPointer);
+  reduced.addEventListener('change', resetPointer);
+  finePointer.addEventListener('change', resetPointer);
+});
+// Reveal small groups in reading order, without delaying entire sections.
+document.querySelector('.timeline').classList.remove('reveal');
+document.querySelectorAll('.hero-copy > *, .hero-art, .exploring > .eyebrow, .radar-item, .timeline article, .about-copy > *, .project-hint, .contact > .eyebrow, .contact-row > h2, .contact-row > div > *, footer > *').forEach((el) => el.classList.add('reveal'));
+document.querySelector('.about-copy').classList.remove('reveal');
+document.querySelector('.contact').classList.remove('reveal');
+document.querySelectorAll('.hero-copy, .radar-grid, .timeline, .project-grid, .about-copy, .contact-row > div, footer').forEach((group) => {
+  [...group.children].forEach((el, index) => {
+    el.style.setProperty('--reveal-delay', `${Math.min(index % 3, 2) * 85}ms`);
+  });
+});
+if ('IntersectionObserver' in window) {
+  document.body.classList.toggle('js-motion', !reduced.matches);
   const observer = new IntersectionObserver(
     (entries) =>
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
+        } else {
+          // Reset only outside the viewport so returning sections replay cleanly.
+          entry.target.classList.remove('visible');
         }
       }),
-    { threshold: 0.08 },
+    { threshold: 0, rootMargin: '0px' },
   );
   document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+  reduced.addEventListener('change', () => {
+    document.body.classList.toggle('js-motion', !reduced.matches);
+  });
 }
+
+// One scheduled update per frame keeps native scrolling responsive.
+const progress = element('div', 'scroll-progress');
+progress.setAttribute('aria-hidden', 'true');
+document.body.append(progress);
+let scrollFrame = 0;
+function updateScrollScene() {
+  scrollFrame = 0;
+  const distance = document.documentElement.scrollHeight - innerHeight;
+  progress.style.transform = `scaleX(${distance > 0 ? Math.min(1, Math.max(0, scrollY / distance)) : 0})`;
+}
+function scheduleScrollScene() {
+  if (!scrollFrame) scrollFrame = requestAnimationFrame(updateScrollScene);
+}
+addEventListener('scroll', scheduleScrollScene, { passive: true });
+addEventListener('resize', scheduleScrollScene);
+addEventListener('load', scheduleScrollScene);
+reduced.addEventListener('change', () => {
+  // Reveal everything immediately when the visitor turns motion off.
+  if (reduced.matches) document.body.classList.remove('js-motion');
+  scheduleScrollScene();
+});
+scheduleScrollScene();
 
 // Decorative constellation, drawn locally so the portfolio has no image dependencies.
 const canvas = document.querySelector('#constellation'),
@@ -153,6 +307,16 @@ const points = [
   [0.81, 0.59],
   [0.44, 0.34],
   [0.18, 0.57],
+  [0.12, 0.23],
+  [0.31, 0.12],
+  [0.65, 0.12],
+  [0.89, 0.29],
+  [0.92, 0.52],
+  [0.86, 0.79],
+  [0.61, 0.87],
+  [0.37, 0.83],
+  [0.10, 0.73],
+  [0.33, 0.47],
 ];
 const edges = [
   [0, 1],
@@ -176,6 +340,29 @@ const edges = [
   [12, 7],
   [7, 9],
   [3, 5],
+  [13, 0],
+  [13, 1],
+  [13, 14],
+  [14, 1],
+  [14, 2],
+  [2, 15],
+  [15, 3],
+  [15, 16],
+  [16, 4],
+  [16, 17],
+  [17, 10],
+  [17, 18],
+  [18, 9],
+  [18, 19],
+  [19, 8],
+  [19, 20],
+  [20, 7],
+  [20, 21],
+  [21, 12],
+  [22, 0],
+  [22, 6],
+  [22, 7],
+  [22, 11],
 ];
 let w = 0,
   h = 0,
@@ -212,7 +399,7 @@ function drawArt(time) {
     ctx.stroke();
   });
   p.forEach(([x, y], i) => {
-    const big = [2, 4, 6, 9].includes(i);
+    const big = [2, 4, 6, 9, 14, 19].includes(i);
     ctx.beginPath();
     ctx.arc(x, y, big ? 6 : 3, 0, Math.PI * 2);
     ctx.fillStyle = big ? '#a3efd4' : '#7ba4df';

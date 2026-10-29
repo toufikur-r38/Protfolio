@@ -1,10 +1,13 @@
 // Edit these details and arrays to update the portfolio. Empty URLs show placeholders.
 window.PORTFOLIO = {
+  // Add your image path here, for example: "images/profile.jpg".
+  "photo": "",
   "name": "Toufikur Rahman",
   "email": "toufikur.private@gmail.com",
   "socials": {
     "github": "https://github.com/toufikur-r38",
     "linkedin": "https://www.linkedin.com/in/toufikur-r38",
+     "Discord": "https://discordapp.com/users/577487461190598679",
     "twitter": ""
   },
   "projects": [
